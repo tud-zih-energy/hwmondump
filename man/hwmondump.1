@@ -1,0 +1,173 @@
+.TH HWMONDUMP 1 2024-02-15
+.SH NAME
+hwmondump \- read hwmon sensor data
+.SH SYNOPSIS
+.B hwmondump record
+.RI [ OPTION ...]
+.RB [ \-\-sysfs "] [" \-\-sysfs\-lseek "] [" \-\-libsensors "] [" \-\-null "]"
+.I SENSOR
+.TP
+.B hwmondump list
+.TP
+.B hwmondump about
+.TP
+.B hwmondump analysis
+.
+.SH DESCRIPTION
+This program uses one (or more) of three methods to access a given sensor file as fast as possible.
+The recorded data is dumped into multiple CSV files.
+Each CSV file contains a timing information (in nanoseconds) and the corresponding value.
+See below in \fBFILES\fR for further details.
+.PP
+All given methods will be handled sequentially:
+The sensors are
+.B not
+read in parallel.
+Consequently,
+the time between two readouts is the overhead of the method.
+.PP
+Use the
+.B hwmondump list
+subcommand to print a list of all accessable sensors on your device. This can be used to fill the
+.I SENSOR
+option of the program
+.BR "hwmondump record" "."
+.
+.PP
+.B "hwmondump about"
+displays information about the program including the license.
+.PP
+.B "hwmondump analysis"
+can be used to perform simple analysis on a dataset.
+Consider this program in a beta state, consult its output of
+.B \-\-help
+for further information.
+.
+.SH OPTIONS
+.TP
+.BR \-a ", " \-\-accessnum " NUM"
+Number of accesses to the given sensor, should be >= 10.
+.TP
+.BR \-t ", " \-\-accesstime " SEC"
+Time to measure (per method), in seconds.
+Measures number of accesses for 1 second, then extrapolates required number of reads.
+Still performs warmup, so total time will exceed given time.
+Enabled by default, runs for 5 seconds.
+Mutually exclusive to
+.BR \-\-accessnum "."
+.TP
+.BR \-o ", " \-\-output
+Path to a directory in which the output files will be saved, don't include a filename, default is current working directory
+.TP
+.BR  \-\-sysfs | \-\-sysfs\-lseek | \-\-libsensors | \-\-null
+Your weapon of choice to get sensor data, you can enter more than one
+.br
+.B \-\-null
+doesn't read sensor data, instead it just benchmarks the speed of
+.B hwmondump record
+itself without accessing any file/sensor.
+.TP
+.BR \-\-no\-metadata
+Do not record metadata into
+.IR metadata.toml,
+not recommended.
+Mainly intended to be used when automated metadata collection fails for some reason.
+.
+.SH FILES
+.SS Sensor File
+Replace
+.I SENSOR
+in the
+.B hwmondump record
+invocation by the sensor file you want to read.
+It is a path in the sysfs like
+.I /sys/class/hwmon/hwmon5/temp1_input
+\- even when using libsensors.
+For libsensors (which does not use the raw sysfs paths for sensor identification),
+the sysfs path will be mapped to the according libsensors-internal representation.
+.PP
+To find available paths search
+.I /sys/class/hwmon/
+or use the
+.B hwmondump list
+command.
+.
+.SS Output Files
+These files will be created when all data was collected.
+They are placed in the directory given via
+.BR \-o " or " \-\-output
+(default: current directory).
+Both are comma-separated-values (csv) files with a header line.
+.TP
+.I METHOD_timestamp_value.csv
+contains raw measurements with the current time of reading as timestamp in nanoseconds, and the read value.
+.TP
+.I METHOD_duration_value.csv
+contains the duration for how long a value stayed the same in nanoseconds, and the corresponding sensor value.
+.
+.SS Metadata File
+.I metadata.toml
+will be created after the data collection has finished. You will find it in the same directory that holds your output files (see above).
+It contains metadata regarding your benchmark, including:
+.IP
+\(bu  uuid: randomly generated unique identifier (UUID version 4) for this execution of \fBhwmondump\fR
+.IP
+\(bu  accessnum: number of accesses of the sensor per reading; only present if given via
+.B \-\-accessnum
+.IP
+\(bu  accesstime_s: desired time to measure for; only present if given via
+.B \-\-accesstime
+.IP
+\(bu  hostname: your current hostname
+.IP
+\(bu  sensor_path: path to the sensor that has been recorded
+.IP
+\(bu  start_datetime: date and time of your benchmark
+.IP
+\(bu  hostname: your current hostname
+.IP
+\(bu  cpu information: various information about your cpu
+.PP
+The information will be gathered before starting the benchmark, but only written down afterwards to avoid creating output if the benchmark fails.
+.SH NOTES
+.SS Null Reader
+Use the null reader (invoke with
+.BR \-\-null )
+to benchmark the program without any sensors.
+The value will always be 0.
+As there is no change in values,
+no duration of a value can be determined and
+.I null_duration_value.csv
+will contain no content.
+.
+.SH EXAMPLES
+.TP
+Call to get a sensor list
+hwmondump list
+.TP
+Simplest call to get sensor data
+hwmondump record \-\-sysfs\-lseek /sys/class/hwmon/hwmon5/temp1_input
+.
+.SH COPYRIGHT
+Copyright Technische Universität Dresden, Germany.
+Built by Tessa Todorowski and Hannes Tröpgen.
+.
+.B hwmondump
+is free software:
+you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+.
+.SH SEE ALSO
+.TP
+.BR sensors "(1)"
+binary from lm\_sensors to show sensors on stdout
+.TP
+.BR libsensors "(3)"
+library to read sensors from hwmon
+.TP
+.I /sys/class/hwmon/
+Section of sysfs where hwmon data is located.
+.TP
+.UR "https://\:www.kernel.org/\:doc/\:html/\:latest/\:hwmon/\:index.html"
+hwmon in the Linux kernel documentation
+.UE ":"
+upstream hwmon definition

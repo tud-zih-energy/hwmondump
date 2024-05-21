@@ -1,0 +1,13 @@
+build*/
+*.csv
+!test_timestamp_value.csv
+!ignore.csv
+!dontignore_timestamp_value.csv
+
+a.out
+
+.vscode
+
+*~
+result
+hwmondump-x86_64.AppImage

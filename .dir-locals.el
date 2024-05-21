@@ -1,0 +1,8 @@
+((nil . ((indent-tabs-mode . nil)
+         (cmake-tab-width . 4)
+         (c-basic-offset . 2)
+         (c-basic-offset . 2)
+         (fill-column . 80)
+         ))
+ (c-mode . ((c-file-style . "BSD")
+            (subdirs . nil))))

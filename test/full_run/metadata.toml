@@ -1,0 +1,12 @@
+accessnum = 20
+hostname = 'kurt'
+sensor_path = '/sys/class/hwmon/hwmon5/temp1_input'
+start_datetime = '2024-03-07 14:41:29'
+uuid = '8eb5bfce-ed49-4542-b1e6-0e60fe172ce4'
+
+[cpu]
+brand_name = 'AMD Ryzen 5 PRO 4650U with Radeon Graphics'
+codename = 'Ryzen 5 (Renoir)'
+family = 23
+model = 96
+vendor = 'AuthenticAMD'

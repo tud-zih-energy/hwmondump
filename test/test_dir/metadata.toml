@@ -1,0 +1,12 @@
+accessnum = 400000
+hostname = 'hostname'
+sensor_path = 'my_sensorpath'
+start_datetime = '2000-01-01 00:00:00'
+uuid = '174813aa-d6a2-4bf4-8ac6-c55b13c97d32'
+
+[cpu]
+brand_name = 'Some CPU'
+codename = 'ramses'
+family = 1
+model = 2
+vendor = 'my_vendor'
